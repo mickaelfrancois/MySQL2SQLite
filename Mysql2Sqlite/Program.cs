@@ -58,7 +58,7 @@ namespace Mysql2Sqlite
 
         static void Main( string[] args )
         {
-            bool show_help = false;
+            bool show_help = args.Length==0;
 
             var p = new OptionSet() {
             { "sqliteFile=", "Full path of the SQLite database", v => sqliteFile = v },
@@ -72,6 +72,9 @@ namespace Mysql2Sqlite
             { "h|help",  "show this message and exit",  v => show_help = v != null },        
             };
 
+            p.Parse( args );
+
+
             if( show_help )
             {
                 ShowHelp( p );
@@ -79,7 +82,7 @@ namespace Mysql2Sqlite
             }
             try
             {                
-                p.Parse( args );
+               
                 Program instance = new Program();
                 instance.Start();
             }
