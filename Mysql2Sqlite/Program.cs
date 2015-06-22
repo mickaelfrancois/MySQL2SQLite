@@ -36,6 +36,8 @@ namespace Mysql2Sqlite
 {
     class Program
     {
+        #region Properties
+
         /// <summary>
         /// MySQL connectin
         /// </summary>
@@ -54,6 +56,8 @@ namespace Mysql2Sqlite
         private static string mysqlHost = "";
         private static bool schemaOnly = false;
         private static bool logQuery = false;
+
+        #endregion
 
 
         static void Main( string[] args )
@@ -105,6 +109,7 @@ namespace Mysql2Sqlite
             Console.WriteLine( "Options:" );
             p.WriteOptionDescriptions( Console.Out );
         }
+
 
         private void Start()
         {
@@ -282,11 +287,13 @@ namespace Mysql2Sqlite
             {
                 string field = rowFields[ "field" ].ToString();
                 string type = rowFields[ "type" ].ToString();
-                type = type.Replace( "unsigned", "" ).Trim();
+                type = this.ConvertType( type );
+                                
                 string isNull = rowFields[ "Null" ].ToString() == "YES" ? "NULL" : "";
                 string key = rowFields[ "Key" ].ToString();
                 string extra = rowFields[ "extra" ].ToString();
                 string defaultValue = rowFields[ "default" ].ToString();
+                if( autoincrement.Length == 0)
                 autoincrement = ( extra == "auto_increment" ? "AUTOINCREMENT" : "" );
                 defaultValue = ( !string.IsNullOrEmpty( defaultValue ) ? string.Format( "DEFAULT '{0}'", defaultValue ) : "" );
                 createTableQuery.Append( string.Format( "{0} {1} {2} {3}, ", field, type, isNull, defaultValue ) );
@@ -303,7 +310,7 @@ namespace Mysql2Sqlite
             createTableQuery.Append( " )" );
 
 
-            createTableQuery.Append( " ) " );
+            createTableQuery.Append( " ); " );
 
 
             var command = this.sqliteCnx.CreateCommand();
@@ -321,6 +328,28 @@ namespace Mysql2Sqlite
                 this.WriteError( ex.Message );
             }
 
+        }
+
+
+        /// <summary>
+        /// Convert a MySQL type to SQLite type
+        /// </summary>
+        /// <param name="mysqlType"></param>
+        /// <remarks>https://www.sqlite.org/datatype3.html</remarks>
+        /// <returns></returns>
+        private string ConvertType(string mysqlType)
+        {
+            mysqlType = mysqlType.ToLower();
+            string sqliteType = mysqlType;
+
+            if( mysqlType.StartsWith( "int" ) )
+                sqliteType = "INTEGER";
+            if( mysqlType.StartsWith( "datetime" ) )
+                sqliteType = "NUMERIC";
+            if( mysqlType.StartsWith( "tinyint" ) )
+                sqliteType = "INTEGER";
+
+            return sqliteType;
         }
 
 
@@ -362,7 +391,7 @@ namespace Mysql2Sqlite
                     creatIndexQuery.Append( string.Format( "{0} {1} ", sep, field ) );
                     sep = ", ";
                 }
-                creatIndexQuery.Append( " ) " );
+                creatIndexQuery.Append( " ); " );
 
                 var command = this.sqliteCnx.CreateCommand();
                 command.CommandText = creatIndexQuery.ToString();
