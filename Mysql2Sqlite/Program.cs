@@ -60,6 +60,10 @@ namespace Mysql2Sqlite
         #endregion
 
 
+        /// <summary>
+        /// Main function
+        /// </summary>
+        /// <param name="args"></param>
         static void Main( string[] args )
         {
             bool show_help = args.Length==0;
@@ -84,6 +88,8 @@ namespace Mysql2Sqlite
                 ShowHelp( p );
                 return;
             }
+
+
             try
             {                
                
@@ -101,6 +107,10 @@ namespace Mysql2Sqlite
         }
 
 
+        /// <summary>
+        /// Show help commands
+        /// </summary>
+        /// <param name="p"></param>
         static void ShowHelp( OptionSet p )
         {
             Console.WriteLine( "Usage: mysql2sqlite [OPTIONS]" );
@@ -111,6 +121,10 @@ namespace Mysql2Sqlite
         }
 
 
+
+        /// <summary>
+        /// Start migration
+        /// </summary>
         private void Start()
         {
             this.OpenMySql();
@@ -172,7 +186,6 @@ namespace Mysql2Sqlite
         }
 
         #endregion
-
 
 
         #region Schema
